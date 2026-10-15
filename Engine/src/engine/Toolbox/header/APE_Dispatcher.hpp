@@ -8,7 +8,13 @@
 
 // add more events
 enum class EventType {
+  // object events
   OBJECT_ADDED,
+  CUBE_ADDED,
+  CYLINDER_ADDED,
+  SPHERE_ADDED,
+  CONVEXMESH_ADDED,
+  //
   OBJECT_MODIFIED,
   COLLIDER_TYPE_MODIFIED,
   KEYPRESS,

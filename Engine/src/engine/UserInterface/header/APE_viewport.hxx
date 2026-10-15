@@ -1,8 +1,12 @@
 #pragma once
 
 #include "APE_Dispatcher.hpp"
+#include "APE_DuplicateSystem.hxx"
+#include "APE_EditRegistrySystem.hxx"
 #include "APE_FBO.hpp"
+#include "APE_KeyEvents.hpp"
 #include "APE_camera.hpp"
+#include "APE_confirmpopup.hxx"
 #include "APE_eventsystem.hxx"
 #include <APE_Components.hpp>
 #include <ImGuizmo.h>
@@ -22,16 +26,28 @@ class Viewport {
 public:
   bool isComplete = false;
   ImGuizmo::MODE mode = ImGuizmo::WORLD;
+  bool inViewPort = false;
 
   void View(std::unique_ptr<FrameBuffer> &framebuffer, Camera &camera,
             entt::registry &reg, std::shared_ptr<Shader> &shader,
             EventSystem &eventSystem, Dispatcher &dispatcher) {
+
+    // bit clean to get mouse x and y
+    int mouseX = eventSystem.MousePos & 0xFFFFu;
+    int mouseY = eventSystem.MousePos >> 16;
+
     ImGuizmo::BeginFrame();
 
-    ImGui::Begin("Viewport");
+    // ImGui::Begin("Viewport");
 
     ImVec2 Pos = ImGui::GetWindowPos();
     ImVec2 avail = ImGui::GetContentRegionAvail();
+    ImVec2 size = ImGui::GetWindowSize();
+
+    inViewPort = mouseX >= Pos.x && mouseX < Pos.x + size.x &&
+                 mouseY >= Pos.y && mouseY < Pos.y + size.y;
+
+    camera.m_IsInViewPort = inViewPort;
 
     unsigned int imguiWidth = (unsigned int)avail.x;
     unsigned int imguiHeight = (unsigned int)avail.y;
@@ -66,53 +82,44 @@ public:
 
     static ImGuizmo::OPERATION operation = ImGuizmo::TRANSLATE;
 
-    for (auto key : eventSystem.m_KeysPressed) {
-      if (key == KeyPress::W)
+    if (inViewPort) {
+      if (eventSystem.Keys & (int)Alicia::W) {
         operation = ImGuizmo::TRANSLATE;
-      if (key == KeyPress::E)
+      }
+      if (eventSystem.Keys & (int)Alicia::E) {
         operation = ImGuizmo::ROTATE;
-      if (key == KeyPress::R)
+      }
+      if (eventSystem.Keys & (int)Alicia::R) {
         operation = ImGuizmo::SCALE;
-      if (key == KeyPress::G) {
-        for (auto mod : eventSystem.m_ModKeys) {
-          if (mod == ModKeys::SHIFT) {
-            mode = ImGuizmo::WORLD;
-          }
-        }
       }
-      if (key == KeyPress::L) {
-        for (auto mod : eventSystem.m_ModKeys) {
-          if (mod == ModKeys::SHIFT) {
-            mode = ImGuizmo::LOCAL;
-          }
-        }
+      if (eventSystem.Keys & (int)Alicia::SHIFT &&
+          eventSystem.Keys & (int)Alicia::G) {
+        mode = ImGuizmo::WORLD;
       }
-      if (key == KeyPress::X) {
-        for (auto mod : eventSystem.m_ModKeys) {
-          if (mod == ModKeys::SHIFT) {
-            operation = ImGuizmo::ROTATE_X;
-          }
-        }
+      if (eventSystem.Keys & (int)Alicia::SHIFT &&
+          eventSystem.Keys & (int)Alicia::L) {
+        mode = ImGuizmo::LOCAL;
       }
-      if (key == KeyPress::Y) {
-        for (auto mod : eventSystem.m_ModKeys) {
-          if (mod == ModKeys::SHIFT) {
-            operation = ImGuizmo::ROTATE_Y;
-          }
-        }
+
+      if (eventSystem.Keys & (int)Alicia::CTRL &&
+          eventSystem.Keys & (int)Alicia::X) {
+        operation = ImGuizmo::ROTATE_X;
       }
-      if (key == KeyPress::Z) {
-        for (auto mod : eventSystem.m_ModKeys) {
-          if (mod == ModKeys::SHIFT) {
-            operation = ImGuizmo::ROTATE_Z;
-          }
-        }
+      if (eventSystem.Keys & (int)Alicia::CTRL &&
+          eventSystem.Keys & (int)Alicia::Y) {
+        operation = ImGuizmo::ROTATE_Y;
+      }
+      if (eventSystem.Keys & (int)Alicia::CTRL &&
+          eventSystem.Keys & (int)Alicia::Z) {
+        operation = ImGuizmo::ROTATE_Z;
       }
     }
 
     glm::mat4 view = camera.GetViewMatrix();
 
     auto selected = reg.view<Selected>();
+
+    glm::vec3 rotBak = {0, 0, 0};
 
     for (auto entity : selected) {
       auto &transform = reg.get<Transform>(entity);
@@ -133,11 +140,20 @@ public:
                                               sca);
 
         transform.s_Position = glm::vec3(pos[0], pos[1], pos[2]);
+
         transform.s_Rotation = glm::vec3(rot[0], rot[1], rot[2]);
+
+        // read rot for all
+        // store,
+        // make them zeros,
+        // rotate
+        // replace
         transform.s_Scale = glm::vec3(sca[0], sca[1], sca[2]);
 
         isComplete = true;
       } else if (!ImGuizmo::IsUsing() && isComplete) {
+
+        rotBak = transform.s_Rotation;
 
         dispatcher.Emitter(EventType::OBJECT_MODIFIED,
                            "Selected objected had been resized");
@@ -146,7 +162,7 @@ public:
       }
     }
 
-    ImGui::End();
+    // ImGui::End();
   }
 
 private:

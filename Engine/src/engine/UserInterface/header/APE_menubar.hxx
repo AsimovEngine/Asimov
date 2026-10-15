@@ -15,8 +15,9 @@ inline void SetUpMenuBar(GLFWwindow *window, Dispatcher &dispatcher) {
       }
 
       if (ImGui::MenuItem("Open", "Ctrl+O")) {
-        ImGuiFileDialog::Instance()->OpenDialog(
-            "ChooseFile", "Open File", ".txt,.cpp,.h,.hpp,.json,.urdf,.xacro");
+        ImGuiFileDialog::Instance()->OpenDialog("ChooseFile", "Open File",
+                                                ".urdf");
+        // "ChooseFile", "Open File", ".txt,.cpp,.h,.hpp,.json,.urdf,.xacro");
       }
 
       if (ImGui::MenuItem("Save", "Ctrl+S")) {
@@ -33,6 +34,10 @@ inline void SetUpMenuBar(GLFWwindow *window, Dispatcher &dispatcher) {
       ImGui::EndMenu();
     }
 
+    if (ImGui::BeginMenu("Settings")) {
+
+      ImGui::EndMenu();
+    }
     if (ImGui::BeginMenu("Edit")) {
       if (ImGui::MenuItem("Undo", "Ctrl+Z")) {
         // Undo
