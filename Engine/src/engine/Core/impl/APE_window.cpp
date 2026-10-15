@@ -45,11 +45,11 @@ void APE_Window::_setUpGLFWContext() {
   glfwInit();
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
-  glfwWindowHint(GLFW_RESIZABLE,
-                 GL_FALSE); // take away the ability to resize the window,
+  // glfwWindowHint(GLFW_RESIZABLE,
+  //                GL_FALSE); // take away the ability to resize the window,
                             // useful in tiling window managers
 
-  m_Scene = M_ENGINE_STATE.create();
+  // m_Scene = M_ENGINE_STATE.create();
 
   // create the window or error, in this case, exit from the app totally
   // app requires a first UI
