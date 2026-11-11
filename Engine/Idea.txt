@@ -1,15 +1,13 @@
-	Overview
-calculate stuff
+Scope
 
-make a struct, or an entity, and have that entity have attributes
--> pos, vel, acc
-struct RigidBody {
-	mass
-	
-	pos(vec3)
-	vel(vec3)
-	rot(vec3) -> conv to Quat
+Physics Editor -> RP3D
+Python code integrations
+FEM -> MFEM
 
-}
+-> No render engine before I finish implementing all these
 
-Update functions, 
+
+-> File reading
+-> One VAO
+-> no Mesh editing -> blender edit mode [ XX ]
+-> read urdf
