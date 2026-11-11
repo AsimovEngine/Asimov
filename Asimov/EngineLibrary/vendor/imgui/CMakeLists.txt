@@ -1,7 +1,7 @@
 # static build
 set(imgui_lib_path "${CMAKE_CURRENT_SOURCE_DIR}/staticlib/libimgui_lib.a")
 
-#check for static build, and use that
+# check for static build, and use that
 if(EXISTS "${imgui_lib_path}")
 	# message("Using prebuilt imgui")
 
@@ -43,7 +43,7 @@ else()
 
 	target_include_directories(
 		imgui_lib
-		PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include
+		PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include/imgui
 	)
 
 	target_compile_features(imgui_lib PUBLIC cxx_std_20)
